@@ -20,6 +20,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 
 /**
  * To use this test:
@@ -48,6 +49,6 @@ public class TestUploader {
         String uploadUrl = endpoint + "/" + groupId + "." + artifactId + "/" + version;
 
         Uploader uploader = new Uploader(uploadUrl, token, stars, "");
-        uploader.uploadFile(new File(filename));
+        uploader.uploadFiles(Collections.singleton(new File(filename)));
     }
 }

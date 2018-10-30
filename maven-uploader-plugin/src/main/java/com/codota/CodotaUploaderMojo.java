@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings({"JavaDoc", "unused"})
 @Mojo(name = "upload")
@@ -99,7 +101,6 @@ public class CodotaUploaderMojo
     @Parameter(property = "baseDir", defaultValue = "${codota.baseDir}", required = false)
     private String baseDir;
 
-
     @Parameter(property = "reportFileName")
     private String reportFileName;
 
@@ -120,10 +121,11 @@ public class CodotaUploaderMojo
         final Uploader uploader;
         uploader = new Uploader(uploadUrl(), token, stars, getSrcDirUrl());
 
+        final List<File> filesToUpload = new ArrayList<>();
+
         // Visit target directory and upload every jar file
         FileVisitor<Path> fv = new SimpleFileVisitor<Path>() {
             boolean root = true;
-
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 if (root) {
@@ -138,14 +140,7 @@ public class CodotaUploaderMojo
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs)
                     throws IOException {
                 if (shouldSendFile(path)) {
-                    try {
-                        getLog().info("Uploading " + path);
-                        uploader.uploadFile(path.toFile());
-                        getLog().info("Done.");
-                    } catch (Exception e) {
-                        getLog().error("Error: " + e.getMessage());
-                        getLog().error("Failed to upload file to codota: " + path);
-                    }
+                    filesToUpload.add(path.toFile());
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -153,7 +148,11 @@ public class CodotaUploaderMojo
 
         try {
             Files.walkFileTree(buildDirectory.toPath(), fv);
-        } catch (IOException e) {
+            getLog().info("Uploading files " + filesToUpload);
+            uploader.uploadFiles(filesToUpload);
+            getLog().info("Done uploading");
+
+        } catch (Exception e) {
             // print the task trace and give up on handling the exception
             e.printStackTrace();
         }

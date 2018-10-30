@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
 public class Uploader {
 
@@ -51,11 +52,11 @@ public class Uploader {
     }
 
 
-    public void uploadFile(File file) throws IOException, URISyntaxException {
-        uploadFile(file, endpoint);
+    public void uploadFiles(Collection<File> files) throws IOException, URISyntaxException {
+        uploadFiles(files, endpoint);
     }
 
-    private void uploadFile(File file, String uploadUrl) throws IOException, URISyntaxException {
+    private void uploadFiles(Collection<File> files, String uploadUrl) throws IOException, URISyntaxException {
 
 
             URIBuilder uriBuilder = new URIBuilder(uploadUrl);
@@ -75,7 +76,9 @@ public class Uploader {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-            builder.addPart("code", new FileBody(file));
+            for (File file : files) {
+                builder.addPart("code", new FileBody(file));
+            }
 
 
             final HttpEntity entity = builder.build();
@@ -83,7 +86,7 @@ public class Uploader {
 
             putRequest.setHeader("enctype", "multipart/form-data");
             putRequest.setHeader("authorization", "bearer " + token);
-            httpClient.execute(putRequest, new UploadResponseHandler(file));
+            httpClient.execute(putRequest, new UploadResponseHandler(files));
 
 
     }
@@ -92,10 +95,10 @@ public class Uploader {
     private class UploadResponseHandler implements ResponseHandler<Object> {
 
 
-        private File file;
+        private Collection<File> files;
 
-        public UploadResponseHandler(File file) {
-            this.file = file;
+        public UploadResponseHandler(Collection<File> files) {
+            this.files = files;
         }
         @Override
         public Object handleResponse(HttpResponse response)
@@ -105,10 +108,10 @@ public class Uploader {
             final int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_OK) {
                 System.out.println("Success! " + responseString);
-                System.out.println("File uploaded to codota: " + file);
+                System.out.println("File uploaded to codota: " + files);
             } else {
                 System.out.println("Request failed with status " + responseString + response.toString());
-                 System.out.println("Failed to upload file to codota: " + file);
+                 System.out.println("Failed to upload file to codota: " + files);
             }
             return null;
         }
