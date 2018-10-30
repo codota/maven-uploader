@@ -9,7 +9,7 @@ To submit your code follow these simple steps:
 * Build your project including sources and send to Codota for indexing by running the following command in your project directory
     
     ```
-    mvn clean source:jar source:test-jar jar:test-jar package com.codota:codota-uploader:1.0.5:upload -Dcodota.token={your_token_here} -Dcodota.endpoint=https://upload.codota.com/artifacts -DskipAssembly -DskipTests -Dmaven.javadoc.skip=true -Dgpg.skip
+    mvn clean source:jar source:test-jar jar:test-jar package com.codota:codota-uploader:1.1.0:upload -Dcodota.token={your_token_here} -Dcodota.endpoint=https://upload.codota.com/artifacts -DskipAssembly -DskipTests -Dmaven.javadoc.skip=true -Dgpg.skip
     ```
     Also, you have the following optional parameter:
     ```
@@ -23,7 +23,7 @@ To submit your code follow these simple steps:
     <plugin>    
          <groupId>com.codota</groupId>
          <artifactId>uploader</artifactId>
-         <version>1.0.5</version>
+         <version>1.1.0</version>
          <configuration>
              <endpoint>https://upload.codota.com/artifacts</endpoint>
              <token>----------- *put your secure token here* -----------</token>       
